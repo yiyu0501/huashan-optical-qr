@@ -1,1 +1,10 @@
-{"name":"一局棋，一個行動｜離線動態 QR","short_name":"華山 QR","start_url":"./index.html","display":"standalone","background_color":"#f4f0e7","theme_color":"#2f6047","description":"華山現場用的螢幕到相機動態 QR 檔案傳輸。"}
+{
+  "name":"一局棋，一個行動｜華山動態 QR",
+  "short_name":"華山 QR",
+  "start_url":"./index.html",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#f4f0e8",
+  "theme_color":"#2f6047",
+  "description":"華山現場的螢幕到相機離線動態 QR 傳輸體驗"
+}

@@ -1,5 +1,6 @@
-const CACHE='huashan-optical-qr-v1';
-const LOCAL=['./','./index.html','./sender.html','./receiver.html','./styles.css','./protocol.js','./manifest.webmanifest','./assets/challenge.svg','./assets/badge-a.svg','./assets/badge-b.svg'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(LOCAL)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(hit=>hit||fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE).then(c=>c.put(e.request,copy)).catch(()=>{});return res}).catch(()=>caches.match('./index.html'))))});
+const CACHE='huashan-optical-qr-v2';
+const CORE=['./','./index.html','./sender.html','./receiver.html','./styles.css','./protocol.js','./manifest.webmanifest','./assets/challenge.svg','./assets/badge-a.svg','./assets/badge-b.svg'];
+const EXTERNAL=['https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js','https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js'];
+self.addEventListener('install',event=>{event.waitUntil((async()=>{const c=await caches.open(CACHE);await c.addAll(CORE);for(const url of EXTERNAL){try{const r=await fetch(url,{mode:'no-cors'});await c.put(url,r)}catch(_){}}await self.skipWaiting()})())});
+self.addEventListener('activate',event=>{event.waitUntil((async()=>{for(const k of await caches.keys())if(k!==CACHE)await caches.delete(k);await self.clients.claim()})())});
+self.addEventListener('fetch',event=>{if(event.request.method!=='GET')return;event.respondWith((async()=>{const cached=await caches.match(event.request,{ignoreSearch:true});if(cached)return cached;try{const r=await fetch(event.request);if(r&&(['basic','cors','opaque'].includes(r.type))){const c=await caches.open(CACHE);c.put(event.request,r.clone()).catch(()=>{})}return r}catch(e){if(event.request.mode==='navigate')return caches.match('./index.html');throw e}})())});

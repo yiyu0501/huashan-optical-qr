@@ -1,20 +1,245 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#2f6047"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css"><title>傳送端｜一局棋，一個行動</title></head><body>
-<main class="shell"><header class="top"><div class="brand"><div class="mark">棋</div><div>活動傳送端<small>華山 8/29｜一局棋，一個行動</small></div></div><a class="pill" href="index.html">回首頁</a></header>
-<section class="kiosk"><aside class="card"><div class="kicker">STAFF KIOSK</div><h2 style="font-size:30px;margin-top:7px">選擇要傳送的內容</h2><p>按下後右側 QR 會開始循環播放。參加者手機只要持續對準，不需要每張都掃到。</p><div class="choice" style="margin-top:18px"><button class="btn primary" id="challengeBtn">① 傳送「西洋棋挑戰」<span>先讓參加者把挑戰圖卡收到手機</span></button><button class="btn gold" id="completeBtn">② 挑戰完成｜抽電子徽章<span>每次 50 / 50 隨機抽 Badge A 或 Badge B</span></button><button class="btn danger" id="stopBtn">停止傳送<span>畫面停在待機狀態</span></button></div><div class="badge-result" id="badgeResult"></div><div class="status" id="status"><strong>待機中。</strong><br>建議先在手機開啟 receiver.html 測試一次。</div><div class="actions"><button class="btn" id="slowerBtn">慢一點</button><button class="btn" id="fasterBtn">快一點</button></div><div class="small" id="speedText">速度：5 fps</div></aside>
-<section class="qr-stage"><div class="qr-paper"><div id="qrcode"></div></div><div class="qr-meta"><span id="payloadLabel">等待選擇內容</span><span id="frameLabel">—</span></div></section></section>
-<footer class="footer">現場建議：QR 實體尺寸越大越好、螢幕亮度調高、手機保持穩定。若掃描卡住，先把速度降到 3 fps。</footer></main>
-<script src="protocol.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
-const ASSETS={
-challenge:{name:'JYC-Chess-Challenge.svg',mime:'image/svg+xml',url:'assets/challenge.svg',label:'西洋棋挑戰',fallback:"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1080\" height=\"1350\" viewBox=\"0 0 1080 1350\">\n<rect width=\"1080\" height=\"1350\" rx=\"0\" fill=\"#f4f0e8\"/><rect x=\"54\" y=\"54\" width=\"972\" height=\"1242\" rx=\"44\" fill=\"#fffdf8\" stroke=\"#2f6047\" stroke-width=\"8\"/>\n<text x=\"100\" y=\"155\" font-family=\"sans-serif\" font-size=\"42\" font-weight=\"800\" fill=\"#2f6047\">HUASHAN · 08.29</text>\n<text x=\"100\" y=\"260\" font-family=\"sans-serif\" font-size=\"80\" font-weight=\"900\" fill=\"#17211c\">一局棋，一個行動</text>\n<text x=\"100\" y=\"342\" font-family=\"sans-serif\" font-size=\"48\" font-weight=\"800\" fill=\"#17211c\">西洋棋挑戰</text>\n<rect x=\"100\" y=\"420\" width=\"880\" height=\"520\" rx=\"34\" fill=\"#234b38\"/>\n<g font-family=\"serif\" font-size=\"230\" text-anchor=\"middle\"><text x=\"320\" y=\"750\" fill=\"#fffdf8\">♞</text><text x=\"760\" y=\"750\" fill=\"#d8a640\">♜</text></g>\n<text x=\"100\" y=\"1020\" font-family=\"sans-serif\" font-size=\"38\" font-weight=\"800\" fill=\"#17211c\">完成一局西洋棋挑戰</text>\n<text x=\"100\" y=\"1080\" font-family=\"sans-serif\" font-size=\"31\" fill=\"#66736b\">不論勝負，完成對局即可獲得一枚隨機電子徽章。</text>\n<text x=\"100\" y=\"1165\" font-family=\"sans-serif\" font-size=\"31\" font-weight=\"700\" fill=\"#2f6047\">完成後請向工作人員出示畫面</text>\n<text x=\"100\" y=\"1240\" font-family=\"sans-serif\" font-size=\"26\" fill=\"#66736b\">臺北市立大學 · 青年互動展示</text>\n</svg>\n"},
-badgeA:{name:'JYC-Badge-Chess-Action.svg',mime:'image/svg+xml',url:'assets/badge-a.svg',label:'徽章 A｜棋局行動者',fallback:"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1080\" height=\"1080\" viewBox=\"0 0 1080 1080\">\n<rect width=\"1080\" height=\"1080\" rx=\"120\" fill=\"#17211c\"/><circle cx=\"540\" cy=\"500\" r=\"340\" fill=\"#2f6047\" stroke=\"#f4f0e8\" stroke-width=\"18\"/>\n<text x=\"540\" y=\"590\" font-family=\"serif\" font-size=\"360\" text-anchor=\"middle\" fill=\"#f4f0e8\">♞</text>\n<text x=\"540\" y=\"885\" font-family=\"sans-serif\" font-size=\"56\" font-weight=\"900\" text-anchor=\"middle\" fill=\"#f4f0e8\">棋局行動者</text>\n<text x=\"540\" y=\"952\" font-family=\"sans-serif\" font-size=\"30\" text-anchor=\"middle\" fill=\"#d8a640\">CHESS ACTION BADGE · 2026 HUASHAN</text>\n</svg>\n"},
-badgeB:{name:'JYC-Badge-Youth-Link.svg',mime:'image/svg+xml',url:'assets/badge-b.svg',label:'徽章 B｜青年連結者',fallback:"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1080\" height=\"1080\" viewBox=\"0 0 1080 1080\">\n<rect width=\"1080\" height=\"1080\" rx=\"120\" fill=\"#f4f0e8\"/><circle cx=\"540\" cy=\"500\" r=\"340\" fill=\"#d8a640\" stroke=\"#17211c\" stroke-width=\"18\"/>\n<g transform=\"translate(540 500)\" fill=\"none\" stroke=\"#17211c\" stroke-width=\"26\"><circle cx=\"-150\" cy=\"0\" r=\"88\"/><circle cx=\"150\" cy=\"0\" r=\"88\"/><path d=\"M-62 0 H62\"/><path d=\"M0 -190 V-60 M0 60 V190\"/></g>\n<text x=\"540\" y=\"885\" font-family=\"sans-serif\" font-size=\"56\" font-weight=\"900\" text-anchor=\"middle\" fill=\"#17211c\">青年連結者</text>\n<text x=\"540\" y=\"952\" font-family=\"sans-serif\" font-size=\"30\" text-anchor=\"middle\" fill=\"#2f6047\">YOUTH LINK BADGE · 2026 HUASHAN</text>\n</svg>\n"}
-};
-let fps=5,timer=null,frameNo=0,current=null,qr=null;const cache={};
-const $=s=>document.querySelector(s);async function loadAsset(key){if(cache[key])return cache[key];const a=ASSETS[key];let text='';try{const r=await fetch(a.url,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);text=await r.text()}catch(e){console.warn('Asset fetch failed; using embedded fallback:',a.url,e);text=a.fallback;$('#status').innerHTML='<strong>素材檔未讀到，已自動使用內建備援圖。</strong><br>QR 仍可正常測試；正式活動前再把 assets 資料夾補齊即可。'}return cache[key]={...a,text}}
-function ensureQR(){if(!window.QRCode)throw new Error('QR 程式尚未載入；請先連網開啟一次這個頁面。');if(!qr)qr=new QRCode($('#qrcode'),{text:'準備中',width:520,height:520,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L})}
-function stop(){if(timer)clearInterval(timer);timer=null;current=null;frameNo=0;$('#payloadLabel').textContent='等待選擇內容';$('#frameLabel').textContent='—';$('#status').innerHTML='<strong>已停止。</strong><br>可選擇下一個內容。';$('#qrcode').innerHTML='';qr=null}
-function renderFrame(){if(!current)return;ensureQR();const idx=frameNo%current.frames.length;qr.clear();qr.makeCode(current.frames[idx]);$('#frameLabel').textContent=`QR ${idx+1} / ${current.frames.length} · loop ${Math.floor(frameNo/current.frames.length)+1}`;frameNo++}
-async function transmit(key){try{const file=await loadAsset(key);const packet=HYQR.makeFrames(file,620);current={...packet,key,label:file.label};frameNo=0;if(timer)clearInterval(timer);$('#qrcode').innerHTML='';qr=null;renderFrame();timer=setInterval(renderFrame,1000/fps);$('#payloadLabel').textContent=file.label;$('#status').innerHTML=`<strong>正在傳送：${file.label}</strong><br>${packet.total} 個 QR frame，會持續循環；接收端掃齊後會自動完成。`;}catch(e){$('#status').innerHTML='<strong>無法開始傳送。</strong><br>'+e.message}}
-$('#challengeBtn').addEventListener('click',()=>{$('#badgeResult').classList.remove('show');transmit('challenge')});$('#completeBtn').addEventListener('click',()=>{const key=Math.random()<.5?'badgeA':'badgeB';const a=ASSETS[key];$('#badgeResult').classList.add('show');$('#badgeResult').innerHTML=`🎉 本次抽中：<strong>${a.label}</strong>`;transmit(key)});$('#stopBtn').addEventListener('click',stop);function setSpeed(v){fps=Math.max(2,Math.min(8,v));$('#speedText').textContent=`速度：${fps} fps`;if(current){clearInterval(timer);timer=setInterval(renderFrame,1000/fps)}}$('#slowerBtn').addEventListener('click',()=>setSpeed(fps-1));$('#fasterBtn').addEventListener('click',()=>setSpeed(fps+1));if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
-</script></body></html>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0b0d">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <title>活動傳送端｜Huashan Optical QR</title>
+</head>
+<body>
+  <main class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="index.html">
+        <div class="brand-mark">♚</div>
+        <div class="brand-copy">
+          <strong>STAFF TRANSMITTER</strong>
+          <span>Huashan Optical QR · 2026.08.29</span>
+        </div>
+      </a>
+      <div class="top-actions">
+        <a class="nav-link" href="receiver.html">開啟接收端</a>
+        <a class="nav-link" href="index.html">回首頁</a>
+      </div>
+    </header>
+
+    <section class="kiosk-layout">
+      <aside class="panel control-panel">
+        <div class="panel-inner">
+          <div class="eyebrow">STAFF KIOSK</div>
+          <h1 class="display-title">現場<br>傳送控制。</h1>
+          <p class="lead">選擇內容後，右側會開始循環播放動態 QR。手機只要持續對準，不需要追著每一張 QR 掃。</p>
+
+          <div class="control-list">
+            <button class="btn control-btn" id="challengeBtn">
+              <span class="step-chip">1</span>
+              <span class="btn-copy"><strong>傳送西洋棋挑戰</strong><small>先讓參加者收到挑戰圖卡</small></span>
+            </button>
+
+            <button class="btn primary control-btn" id="completeBtn">
+              <span class="step-chip">2</span>
+              <span class="btn-copy"><strong>完成挑戰｜抽紀念卡</strong><small>Black King / White King · 50 / 50</small></span>
+            </button>
+
+            <button class="btn danger control-btn" id="stopBtn">
+              <span class="step-chip">×</span>
+              <span class="btn-copy"><strong>停止傳送</strong><small>讓 QR 回到待機狀態</small></span>
+            </button>
+          </div>
+
+          <div class="result-card" id="resultCard">
+            <img class="result-thumb" id="resultThumb" alt="抽中的紀念卡">
+            <div>
+              <div class="label">DRAW RESULT</div>
+              <div class="name" id="resultName">—</div>
+              <div class="sub">請讓參加者繼續掃描右側 QR</div>
+            </div>
+          </div>
+
+          <div class="status-box" id="status">
+            <strong>待機中。</strong><br>
+            建議先用手機開啟 receiver.html 做一次測試。
+          </div>
+
+          <div class="speed-control">
+            <div class="speed-label" id="speedText">播放速度 · 5 fps</div>
+            <div class="speed-buttons">
+              <button class="mini-btn" id="slowerBtn" aria-label="慢一點">−</button>
+              <button class="mini-btn" id="fasterBtn" aria-label="快一點">＋</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="qr-stage">
+        <div class="stage-label">OPTICAL TRANSFER / LIVE FRAME</div>
+        <div class="stage-live"><i></i><span id="stageState">STANDBY</span></div>
+
+        <div class="qr-frame">
+          <div id="qrcode"></div>
+        </div>
+
+        <div class="qr-meta">
+          <span><strong id="payloadLabel">等待選擇內容</strong></span>
+          <span id="frameLabel">—</span>
+        </div>
+
+        <div class="stage-hint">螢幕亮度請調高 · 手機保持穩定 · 掃描卡住時可降至 3 fps</div>
+      </section>
+    </section>
+
+    <footer class="footer">
+      <div><strong>現場模式</strong><br>Black King / White King 已改為讀取 repo 根目錄的 badge-a.svg、badge-b.svg。</div>
+      <div>HY1 segmented QR · local transfer</div>
+    </footer>
+  </main>
+
+  <script src="protocol.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    const CHALLENGE_SVG=`<svg xmlns="http://www.w3.org/2000/svg" width="720" height="900" viewBox="0 0 720 900">
+      <rect width="720" height="900" fill="#0b0b0d"/>
+      <rect x="22" y="22" width="676" height="856" rx="34" fill="#111114" stroke="#c6a15b" stroke-width="2"/>
+      <text x="360" y="96" text-anchor="middle" fill="#d9bf87" font-family="serif" font-size="20" letter-spacing="5">HUASHAN 1914 · 2026.08.29</text>
+      <text x="360" y="190" text-anchor="middle" fill="#f7f3eb" font-family="sans-serif" font-size="54" font-weight="800">一局棋，一個行動</text>
+      <text x="360" y="252" text-anchor="middle" fill="#c6a15b" font-family="sans-serif" font-size="28" font-weight="700">西洋棋挑戰</text>
+      <circle cx="360" cy="465" r="155" fill="#0c0c0e" stroke="#3c3323" stroke-width="2"/>
+      <text x="360" y="555" text-anchor="middle" fill="#d8bd7f" font-family="serif" font-size="250">♚</text>
+      <line x1="190" y1="665" x2="530" y2="665" stroke="#4e422c"/>
+      <text x="360" y="724" text-anchor="middle" fill="#f7f3eb" font-family="sans-serif" font-size="27" font-weight="800">完成一局西洋棋挑戰</text>
+      <text x="360" y="772" text-anchor="middle" fill="#aaa49a" font-family="sans-serif" font-size="20">不論勝負，完成對局即可抽取今日紀念卡。</text>
+      <text x="360" y="832" text-anchor="middle" fill="#c6a15b" font-family="sans-serif" font-size="18">臺北市青年局 × 臺北市立大學傑青社</text>
+    </svg>`;
+
+    const ASSETS={
+      challenge:{
+        name:'Huashan-Chess-Challenge.svg',
+        mime:'image/svg+xml',
+        label:'西洋棋挑戰',
+        inline:CHALLENGE_SVG
+      },
+      badgeA:{
+        name:'Black-King-Huashan.svg',
+        mime:'image/svg+xml',
+        url:'badge-a.svg',
+        label:'BLACK KING｜黑王'
+      },
+      badgeB:{
+        name:'White-King-Huashan.svg',
+        mime:'image/svg+xml',
+        url:'badge-b.svg',
+        label:'WHITE KING｜白王'
+      }
+    };
+
+    let fps=5,timer=null,frameNo=0,current=null,qr=null;
+    const cache={};
+    const $=s=>document.querySelector(s);
+
+    async function loadAsset(key){
+      if(cache[key]) return cache[key];
+      const a=ASSETS[key];
+
+      if(a.inline){
+        return cache[key]={...a,text:a.inline};
+      }
+
+      const r=await fetch(a.url,{cache:'no-store'});
+      if(!r.ok) throw new Error(`找不到 ${a.url}（HTTP ${r.status}）`);
+      const text=await r.text();
+      return cache[key]={...a,text};
+    }
+
+    function ensureQR(){
+      if(!window.QRCode) throw new Error('QR 程式尚未載入。請先連網開啟一次這個頁面。');
+      if(!qr){
+        qr=new QRCode($('#qrcode'),{
+          text:'準備中',
+          width:520,
+          height:520,
+          colorDark:'#000000',
+          colorLight:'#ffffff',
+          correctLevel:QRCode.CorrectLevel.L
+        });
+      }
+    }
+
+    function setStage(active){
+      $('#stageState').textContent=active?'TRANSMITTING':'STANDBY';
+    }
+
+    function stop(){
+      if(timer) clearInterval(timer);
+      timer=null;current=null;frameNo=0;
+      $('#payloadLabel').textContent='等待選擇內容';
+      $('#frameLabel').textContent='—';
+      $('#status').innerHTML='<strong>已停止。</strong><br>可選擇下一個內容。';
+      $('#qrcode').innerHTML='';
+      $('#resultCard').classList.remove('show');
+      setStage(false);
+      qr=null;
+    }
+
+    function renderFrame(){
+      if(!current) return;
+      ensureQR();
+      const idx=frameNo%current.frames.length;
+      qr.clear();
+      qr.makeCode(current.frames[idx]);
+      $('#frameLabel').textContent=`QR ${idx+1} / ${current.frames.length} · LOOP ${Math.floor(frameNo/current.frames.length)+1}`;
+      frameNo++;
+    }
+
+    async function transmit(key){
+      try{
+        const file=await loadAsset(key);
+        const packet=HYQR.makeFrames(file,620);
+        current={...packet,key,label:file.label};
+        frameNo=0;
+        if(timer) clearInterval(timer);
+        $('#qrcode').innerHTML='';
+        qr=null;
+        renderFrame();
+        timer=setInterval(renderFrame,1000/fps);
+        $('#payloadLabel').textContent=file.label;
+        $('#status').innerHTML=`<strong>正在傳送：${file.label}</strong><br>${packet.total} 個 QR frame 正在循環播放。手機掃齊後會自動完成。`;
+        setStage(true);
+      }catch(e){
+        setStage(false);
+        $('#status').innerHTML=`<strong>無法開始傳送。</strong><br>${e.message}`;
+      }
+    }
+
+    $('#challengeBtn').addEventListener('click',()=>{
+      $('#resultCard').classList.remove('show');
+      transmit('challenge');
+    });
+
+    $('#completeBtn').addEventListener('click',()=>{
+      const key=Math.random()<.5?'badgeA':'badgeB';
+      const a=ASSETS[key];
+      $('#resultThumb').src=a.url;
+      $('#resultName').textContent=a.label;
+      $('#resultCard').classList.add('show');
+      transmit(key);
+    });
+
+    $('#stopBtn').addEventListener('click',stop);
+
+    function setSpeed(v){
+      fps=Math.max(2,Math.min(8,v));
+      $('#speedText').textContent=`播放速度 · ${fps} fps`;
+      if(current){
+        clearInterval(timer);
+        timer=setInterval(renderFrame,1000/fps);
+      }
+    }
+
+    $('#slowerBtn').addEventListener('click',()=>setSpeed(fps-1));
+    $('#fasterBtn').addEventListener('click',()=>setSpeed(fps+1));
+
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  </script>
+</body>
+</html>

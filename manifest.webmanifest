@@ -1,10 +1,10 @@
 {
-  "name":"一局棋，一個行動｜華山動態 QR",
-  "short_name":"華山 QR",
-  "start_url":"./index.html",
-  "scope":"./",
-  "display":"standalone",
-  "background_color":"#f4f0e8",
-  "theme_color":"#2f6047",
-  "description":"華山現場的螢幕到相機離線動態 QR 傳輸體驗"
+  "name": "Huashan Optical QR",
+  "short_name": "Huashan QR",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b0b0d",
+  "theme_color": "#0b0b0d",
+  "lang": "zh-Hant",
+  "description": "2026 Huashan optical QR transfer experience"
 }

@@ -4,49 +4,31 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0b0b0d">
-  <link rel="stylesheet" href="styles.css?v=0829-final2">
-  <title>Huashan Keepsake｜一局棋，一個行動</title>
-<script>
-(async()=>{
-  try{
-    if(!sessionStorage.getItem('huashan-final-cache-cleared')){
-      sessionStorage.setItem('huashan-final-cache-cleared','1');
-      if('serviceWorker' in navigator){
-        const regs=await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map(r=>r.unregister()));
-      }
-      if('caches' in window){
-        const keys=await caches.keys();
-        await Promise.all(keys.map(k=>caches.delete(k)));
-      }
-      location.reload();
-    }
-  }catch(e){ console.warn('cache cleanup skipped',e); }
-})();
-</script>
+  <link rel="stylesheet" href="styles-fast.css">
+  <title>Huashan Keepsake｜FAST</title>
 </head>
 <body>
-  <main class="site-shell">
-    <header class="site-header">
-      <div class="brand">
-        <div class="brand-mark">♚</div>
-        <div class="brand-copy"><strong>HUASHAN KEEPSAKE</strong><span>2026.08.29 · FINAL</span></div>
-      </div>
-    </header>
+<main class="site-shell">
+  <header class="site-header">
+    <div class="brand">
+      <div class="brand-mark">♚</div>
+      <div class="brand-copy"><strong>HUASHAN KEEPSAKE</strong><span>FAST OPTICAL MODE · 2026.08.29</span></div>
+    </div>
+  </header>
 
-    <section class="panel home-hero">
-      <div class="home-copy">
-        <div class="eyebrow">BLACK KING / WHITE KING</div>
-        <h1 class="display-title">一局棋，<br>一張紀念。</h1>
-        <p class="lead">完成現場挑戰後，以 50/50 機率抽出 Black King 或 White King，並透過動態 QR 傳到手機。</p>
-        <div class="gold-line"></div>
-        <div class="actions-row">
-          <a class="btn primary" href="sender-final2-0829.html">工作人員｜抽卡傳送</a>
-          <a class="btn ghost" href="receiver-final-0829.html">參加者｜接收紀念卡</a>
-        </div>
+  <section class="panel home-hero">
+    <div class="home-copy">
+      <div class="eyebrow">BLACK KING / WHITE KING · FAST</div>
+      <h1 class="display-title">一局棋，<br>幾秒帶走。</h1>
+      <p class="lead">新版直接以壓縮圖片進行光學傳輸，大幅減少 QR frame；離線收到 720px 紀念卡，有網路時也可取得原尺寸高畫質版。</p>
+      <div class="gold-line"></div>
+      <div class="actions-row">
+        <a class="btn primary" href="sender-fast-0829.html">工作人員｜FAST 傳送</a>
+        <a class="btn ghost" href="receiver-fast-0829.html">參加者｜FAST 接收</a>
       </div>
-      <div class="home-visual"><div class="event-stamp">HUASHAN 1914 · TAIPEI<br>29 AUG 2026</div></div>
-    </section>
-  </main>
+    </div>
+    <div class="home-visual"><div class="event-stamp">HUASHAN 1914 · TAIPEI<br>29 AUG 2026</div></div>
+  </section>
+</main>
 </body>
 </html>

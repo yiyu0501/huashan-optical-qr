@@ -1,6 +1,7 @@
-const CACHE='huashan-optical-qr-final-v6-0829';
-const CORE=['./','./index.html','./sender-final-0829.html','./receiver.html','./styles.css','./protocol.js','./manifest.webmanifest'];
-const EXTERNAL=['https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js','https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js'];
-self.addEventListener('install',event=>{event.waitUntil((async()=>{const c=await caches.open(CACHE);for(const u of CORE){try{const r=await fetch(u,{cache:'reload'});if(r.ok)await c.put(u,r)}catch(_){}}for(const u of EXTERNAL){try{const r=await fetch(u,{mode:'no-cors'});await c.put(u,r)}catch(_){}}await self.skipWaiting()})())});
-self.addEventListener('activate',event=>{event.waitUntil((async()=>{for(const k of await caches.keys())if(k!==CACHE)await caches.delete(k);await self.clients.claim()})())});
-self.addEventListener('fetch',event=>{if(event.request.method!=='GET')return;const req=event.request;event.respondWith((async()=>{try{const fresh=await fetch(req,{cache:'no-store'});if(fresh&&['basic','cors','opaque'].includes(fresh.type)){const c=await caches.open(CACHE);c.put(req,fresh.clone()).catch(()=>{})}return fresh}catch(e){const cached=await caches.match(req,{ignoreSearch:false});if(cached)return cached;if(req.mode==='navigate')return caches.match('./index.html');throw e}})())});
+const CACHE='huashan-final-cleanup-0829-v7';
+self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));
+self.addEventListener('activate',e=>e.waitUntil((async()=>{
+  for(const k of await caches.keys()) await caches.delete(k);
+  await self.clients.claim();
+})()));
+self.addEventListener('fetch',()=>{});
